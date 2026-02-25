@@ -103,6 +103,12 @@
   transform: translateY(0);
 }
 
+.github-login-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
 .github-login-btn svg {
   flex-shrink: 0;
 }

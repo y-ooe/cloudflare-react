@@ -30,9 +30,7 @@ npm run dev
 npm run build
 ```
 
-## GitHub OAuth設定（オプション）
-
-実際のGitHub OAuth認証を使用する場合：
+## GitHub OAuth設定（必須）
 
 1. [GitHub Developer Settings](https://github.com/settings/developers)でOAuthアプリケーションを作成
 2. `.env`ファイルを作成し、Client IDを設定：
@@ -42,8 +40,12 @@ VITE_GITHUB_CLIENT_ID=your_github_client_id_here
 ```
 
 3. Authorization callback URLを設定：`http://localhost:5173/callback`
+4. Cloudflare Pagesの環境変数に以下を設定：
 
-Client IDを設定しない場合は、デモモードで動作します。
+```
+GITHUB_CLIENT_ID=your_github_client_id_here
+GITHUB_CLIENT_SECRET=your_github_client_secret_here
+```
 
 ## 技術スタック
 
@@ -51,7 +53,7 @@ Client IDを設定しない場合は、デモモードで動作します。
 - TypeScript
 - Vite
 - React Router
-- CSS Modules
+- CSS
 
 ## ファイル構成
 
@@ -66,10 +68,16 @@ src/
 │   └── AuthContext.tsx
 ├── pages/              # ページコンポーネント
 │   ├── Login.tsx
-│   └── Home.tsx
+│   ├── Home.tsx
+│   └── Callback.tsx
 ├── types.ts            # 型定義
 ├── App.tsx             # ルーティング設定
 └── main.tsx            # エントリーポイント
+
+functions/
+└── api/
+	└── github/
+		└── oauth.ts     # GitHub OAuthトークン交換
 ```
 
 ## ライセンス

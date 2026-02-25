@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from 'react'
+import { createContext, useContext, useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 
 interface User {
@@ -11,7 +11,8 @@ interface User {
 interface AuthContextType {
     user: User | null
     isLoading: boolean
-    login: () => void
+    startLogin: () => void
+    completeLogin: (code: string, state: string | null) => Promise<User>
     logout: () => void
 }
 
@@ -30,28 +31,44 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setIsLoading(false)
     }, [])
 
-    const login = () => {
-        // GitHub OAuth認証のリダイレクトURL
-        // 実際の実装では、GitHub OAuthアプリケーションを作成し、
-        // Client IDとClient Secretを使用する必要があります
+    const startLogin = () => {
         const clientId = import.meta.env.VITE_GITHUB_CLIENT_ID
 
         if (!clientId) {
-            // デモ用のモックユーザー
-            const mockUser: User = {
-                id: '1',
-                login: 'demo-user',
-                name: 'デモユーザー',
-                avatar_url: 'https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png'
-            }
-            setUser(mockUser)
-            localStorage.setItem('github_user', JSON.stringify(mockUser))
-        } else {
-            // 実際のGitHub OAuth認証
-            const redirectUri = `${window.location.origin}/callback`
-            const scope = 'read:user'
-            window.location.href = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}`
+            throw new Error('VITE_GITHUB_CLIENT_ID is not set')
         }
+
+        const redirectUri = `${window.location.origin}/callback`
+        const scope = 'read:user'
+        const state = crypto.randomUUID()
+
+        sessionStorage.setItem('github_oauth_state', state)
+        window.location.href = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&state=${state}`
+    }
+
+    const completeLogin = async (code: string, state: string | null) => {
+        const storedState = sessionStorage.getItem('github_oauth_state')
+        if (!state || state !== storedState) {
+            sessionStorage.removeItem('github_oauth_state')
+            throw new Error('Invalid OAuth state')
+        }
+
+        const response = await fetch('/api/github/oauth', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ code }),
+        })
+
+        if (!response.ok) {
+            throw new Error('OAuth exchange failed')
+        }
+
+        const data = await response.json()
+        const nextUser: User = data.user
+        setUser(nextUser)
+        localStorage.setItem('github_user', JSON.stringify(nextUser))
+        sessionStorage.removeItem('github_oauth_state')
+        return nextUser
     }
 
     const logout = () => {
@@ -60,7 +77,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     return (
-        <AuthContext.Provider value={{ user, isLoading, login, logout }}>
+        <AuthContext.Provider value={{ user, isLoading, startLogin, completeLogin, logout }}>
             {children}
         </AuthContext.Provider>
     )

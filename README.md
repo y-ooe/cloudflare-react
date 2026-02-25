@@ -1,73 +1,77 @@
-# React + TypeScript + Vite
+# 家計簿アプリ with GitHub認証
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React + Vite + TypeScriptで構築された家計簿アプリケーションです。
 
-Currently, two official plugins are available:
+## 機能
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- 💰 **収支管理**: 収入・支出の記録と管理
+- 📊 **サマリー表示**: 収入、支出、残高を一目で確認
+- 📝 **取引履歴**: すべての取引を時系列で表示
+- 🔐 **GitHub認証**: GitHubアカウントでログイン
+- 🎨 **レスポンシブデザイン**: PC・スマホ両対応
 
-## React Compiler
+## セットアップ
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### 依存関係のインストール
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### 開発サーバーの起動
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm run dev
 ```
+
+### ビルド
+
+```bash
+npm run build
+```
+
+## GitHub OAuth設定（オプション）
+
+実際のGitHub OAuth認証を使用する場合：
+
+1. [GitHub Developer Settings](https://github.com/settings/developers)でOAuthアプリケーションを作成
+2. `.env`ファイルを作成し、Client IDを設定：
+
+```bash
+VITE_GITHUB_CLIENT_ID=your_github_client_id_here
+```
+
+3. Authorization callback URLを設定：`http://localhost:5173/callback`
+
+Client IDを設定しない場合は、デモモードで動作します。
+
+## 技術スタック
+
+- React 19
+- TypeScript
+- Vite
+- React Router
+- CSS Modules
+
+## ファイル構成
+
+```
+src/
+├── components/          # 共通コンポーネント
+│   ├── TransactionForm.tsx
+│   ├── TransactionList.tsx
+│   ├── Summary.tsx
+│   └── ProtectedRoute.tsx
+├── contexts/           # コンテキスト
+│   └── AuthContext.tsx
+├── pages/              # ページコンポーネント
+│   ├── Login.tsx
+│   └── Home.tsx
+├── types.ts            # 型定義
+├── App.tsx             # ルーティング設定
+└── main.tsx            # エントリーポイント
+```
+
+## ライセンス
+
+MIT

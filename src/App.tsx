@@ -1,35 +1,29 @@
-import { useState } from 'react'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { AuthProvider } from './contexts/AuthContext'
+import ProtectedRoute from './components/ProtectedRoute'
+import Login from './pages/Login'
+import Home from './pages/Home'
 import './App.css'
-import type { Transaction } from './types'
-import TransactionForm from './components/TransactionForm'
-import TransactionList from './components/TransactionList'
-import Summary from './components/Summary'
 
 function App() {
-  const [transactions, setTransactions] = useState<Transaction[]>([])
-
-  const addTransaction = (transaction: Omit<Transaction, 'id'>) => {
-    const newTransaction: Transaction = {
-      ...transaction,
-      id: Date.now().toString(),
-    }
-    setTransactions([newTransaction, ...transactions])
-  }
-
-  const deleteTransaction = (id: string) => {
-    setTransactions(transactions.filter(t => t.id !== id))
-  }
-
   return (
-    <div className="app">
-      <h1>💰 家計簿アプリ</h1>
-      <Summary transactions={transactions} />
-      <TransactionForm onAdd={addTransaction} />
-      <TransactionList 
-        transactions={transactions} 
-        onDelete={deleteTransaction} 
-      />
-    </div>
+    <BrowserRouter>
+      <AuthProvider>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route 
+            path="/home" 
+            element={
+              <ProtectedRoute>
+                <Home />
+              </ProtectedRoute>
+            } 
+          />
+          <Route path="/" element={<Navigate to="/login" replace />} />
+          <Route path="*" element={<Navigate to="/login" replace />} />
+        </Routes>
+      </AuthProvider>
+    </BrowserRouter>
   )
 }
 
